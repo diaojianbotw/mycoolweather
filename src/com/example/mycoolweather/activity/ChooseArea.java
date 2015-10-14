@@ -111,7 +111,12 @@ public class ChooseArea extends Activity{
 	@Override
 	public void onBackPressed() {
 		// TODO Auto-generated method stub
-		super.onBackPressed();
+		if(current_leavel == countyLeavel)
+		{
+			queryCity();
+		} else if(current_leavel == cityLeavel){
+			queryProvince();
+		}
 	}
 
 	
