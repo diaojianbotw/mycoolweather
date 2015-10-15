@@ -8,22 +8,25 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.mycoolweather.R;
+import com.example.mycoolweather.service.AutoUpdateService;
 import com.example.mycoolweather.util.HttpCallBack;
 import com.example.mycoolweather.util.HttpUtil;
 import com.example.mycoolweather.util.Utility;
 
-public class WeatherActivity extends Activity{
+public class WeatherActivity extends Activity implements OnClickListener{
 
 	private Button switchCity;
 	private Button refresh;
@@ -36,6 +39,7 @@ public class WeatherActivity extends Activity{
 	private LinearLayout liner;
 	private String countyCode;
 	private String address;
+	private String weatherCode;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -52,13 +56,10 @@ public class WeatherActivity extends Activity{
 		temp2 = (TextView) findViewById(R.id.temp2);
 		liner = (LinearLayout) findViewById(R.id.weather_info_layout);
 		countyCode = getIntent().getStringExtra("countyCode");
-		if(!TextUtils.isEmpty(countyCode))
-		{
-			publishTime.setText("同步中");
-			show();
-		}
+		publishTime.setText("同步中");
 		titleCity.setVisibility(View.INVISIBLE);
 		liner.setVisibility(View.INVISIBLE);
+		queryWeather();
 		
 	}
 
@@ -92,8 +93,13 @@ public class WeatherActivity extends Activity{
 			public void finish(String respnse) {
 				if("countyCode".equals(type))
 				{
-					String [] arr = respnse.split(",");
-					String weatherCode = arr[1];
+					String [] arr = respnse.split("\\|");
+					if(arr!=null && arr.length==2)
+					{
+						weatherCode = arr[1];
+						queryWeatherInfo(weatherCode);
+					}
+					
 				} else if("weatherCode".equals(type))
 				{
 					Utility.handleWeatherInfo(WeatherActivity.this, respnse, countyCode);
@@ -125,10 +131,35 @@ public class WeatherActivity extends Activity{
 			temp2.setText(json.getString("temp2"));
 			titleCity.setVisibility(View.VISIBLE);
 			liner.setVisibility(View.VISIBLE);
+			Intent i = new Intent(this,AutoUpdateService.class);
+			i.putExtra("countyCode", countyCode);
+			i.putExtra("weatherCode", weatherCode);
+			startService(i);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
+
+
+	@Override
+	public void onClick(View v) {
+		switch(v.getId())
+		{
+			case R.id.switch_city:
+				Intent intent = new Intent(this,ChooseArea.class);
+				startActivity(intent);
+			break;
+			case R.id.refresh:
+				publishTime.setText("同步中...");
+				if(!TextUtils.isEmpty(weatherCode))
+				{
+					queryWeatherInfo(weatherCode);
+				}
+			break;
+		}
+		
+	}
+
 	
 }

@@ -10,8 +10,6 @@ import java.net.URL;
 
 public class HttpUtil {
 	
-	
-
 	public static void sendRequest(final String address,final HttpCallBack httpcallback){
 		
 		new Thread(new Runnable() {
@@ -27,7 +25,7 @@ public class HttpUtil {
 					connection.setConnectTimeout(8000);
 					InputStream in = connection.getInputStream();
 					BufferedReader read = new BufferedReader(new InputStreamReader(in));
-					StringBuilder respnse = null;
+					StringBuilder respnse = new StringBuilder();
 					String line;
 					while(( line = read.readLine())!=null)
 					{
@@ -51,7 +49,7 @@ public class HttpUtil {
 					}
 				}
 			}
-		});
+		}).start();
 	}
 	
 }

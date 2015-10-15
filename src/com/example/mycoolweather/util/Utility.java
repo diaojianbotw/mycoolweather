@@ -62,7 +62,7 @@ public class Utility {
 	
 	public synchronized static boolean handCountyResponse(String response,CoolWeatherDB coolWeatherDB,int cityId )
 	{
-		if(TextUtils.isEmpty(response))
+		if(!TextUtils.isEmpty(response))
 		{
 			String [] allCounty = response.split(",");
 			if(allCounty!=null && allCounty.length>0)
